@@ -173,7 +173,8 @@
             },
             "GameActivityToggle": {
                 "enabled": true,
-                "oldIcon": false
+                "oldIcon": false,
+                "location": "PANEL"
             },
             "GifPaste": {
                 "enabled": false
@@ -194,7 +195,7 @@
                 "invertScroll": true,
                 "nearestNeighbour": false,
                 "square": false,
-                "zoom": 3.3999999999999995,
+                "zoom": 3.9999999999999996,
                 "size": 499.9119718309859,
                 "zoomSpeed": 0.5
             },
@@ -392,7 +393,8 @@
             "SilentTyping": {
                 "enabled": true,
                 "showIcon": false,
-                "isEnabled": true
+                "isEnabled": true,
+                "contextMenu": true
             },
             "SortFriendRequests": {
                 "enabled": false
@@ -685,7 +687,8 @@
                 "enabled": true
             },
             "WebScreenShareFixes": {
-                "enabled": true
+                "enabled": true,
+                "experimentalAV1Support": false
             },
             "WebContextMenus": {
                 "enabled": true,
@@ -735,6 +738,31 @@
             },
             "ImageFilename": {
                 "enabled": false
+            },
+            "MoreQuickReactions": {
+                "enabled": false
+            },
+            "LinkEncode": {
+                "enabled": true,
+                "autoEncode": false,
+                "showEncodedTooltip": true,
+                "stealthMode": true
+            },
+            "Message Encryption": {
+                "enabled": true,
+                "autoEncode": false,
+                "showEncodedTooltip": true,
+                "stealthMode": true
+            },
+            "ShadowGuard": {
+                "enabled": true,
+                "workerUrl": "https://shadowguard-worker.arnav-panigrahi.workers.dev/",
+                "autoDecrypt": true
+            },
+            "Discord Secure Room": {
+                "enabled": true,
+                "workerUrl": "https://shadowguard-worker.arnav-panigrahi.workers.dev/",
+                "autoDecrypt": true
             }
         },
         "notifications": {
@@ -747,9 +775,13 @@
             "authenticated": false,
             "url": "https://api.vencord.dev/",
             "settingsSync": false,
-            "settingsSyncVersion": 1762843150867
+            "settingsSyncVersion": 1768615320787
         },
-        "eagerPatches": false
+        "eagerPatches": false,
+        "uiElements": {
+            "chatBarButtons": {},
+            "messagePopoverButtons": {}
+        }
     },
-    "quickCss": "\n/*hide gift,gif and sticker buttons in message box as long as discord is in english*/\n[aria-label=\"Send a gift\"], [aria-label=\"Open sticker picker\"],[aria-label=\"Open GIF picker\"]{\n  padding:0;\n  height:0;\n  width:0;\n  visibility: hidden;\n  opacity: 0;\n}\n\n\n/*move roleicon left*/\n[class*=\"roleIcon\"] {\n    float: left;\n    margin-left: 0rem;\n    margin-right: .25rem;\n}\n[class*=\"channelAppLauncher_df39bd\"] {\n  padding:0;\n  height:0;\n  width:0;\n  visibility: hidden;\n  opacity: 0;\n}\n\n/*Dashless channel names*/\n@font-face {\n    font-family: \"Twemoji Mozilla\";\n    src: url(\"https://vendicated.github.io/random-files/Twemoji.Mozilla.ttf\") format(\"truetype\");\n    unicode-range: U+1F1E6-1F1FF;\n}\n@font-face {\n    font-family: \"dashless\";\n    size-adjust: 100%;\n    src: url(\"https://vendicated.github.io/random-files/Dashless.woff2\") format(\"woff2\");\n    unicode-range: U+002D;\n}\n[data-list-item-id^=channels___]:not([role=button]),\n[class^=titleWrapper]>h1,\n[id^=\":r\"]>h1,\n[class^=resultChannel],\n[class^=channelNameContainer_],\n[class^=searchAnswer_],\n.channelWithIcon,\n[class^=emptyChannelIcon_]+h3,\n[class^=emptyChannelIcon_]~[class*=description_],\n[class^=browser_] [class*=channelText_],\n[class^=returnButton_] [class^=text-],\n[class^=placeholder][class*=slateTextArea],\n[class^=auditLog_] [class^=overflowEllipsis_] strong,\n.vc-permviewer-perms-title,\n[class^=headerChannelContainer_]>div {\n    font-family: \"Twemoji Mozilla\", \"dashless\", var(--font-primary)\n}\n\n/* preview links*/\n.anchor_af404b[title$=\")\"]::after {\n    font-size: 0.7rem;\n    content: \" (\" attr(href) \")\";\n    filter: grayscale(0.4);\n}\n\nimg[src*=\"315923287953637377\"]+img+h3>span>span[role=\"button\"] {\n    color:#bd93f9!important\n}\nimg[src*=\"315923287953637377\"]+span[role=\"button\"] {\n    color:#bd93f9!important\n}\nimg[src*=\"315923287953637377\"]+span+span[role=\"button\"] {\n    color:#bd93f9!important\n}"
+    "quickCss": "@import\"https://raw.githubusercontent.com/stickfab/pc-fluenticons/main/FluentIcons.css\";\n@import\"https://raw.githubusercontent.com/mr-miner1/Better-Badges/main/BetterBadges(BD).theme.css\";\n/*@import\"https://raw.githubusercontent.com/x6r/dracula/main/BetterDiscord/source.css\";*/\n\n/*hide gift,gif and sticker buttons in message box as long as discord is in english*/\n.button__74017.button__24af7[aria-label=\"Send a gift\"],\n.button__74017.button__24af7[aria-label=\"Open GIF picker\"],\n.button__74017.stickerButton__74017.button__24af7[aria-label=\"Open sticker picker\"] {\n    display: none !important;\n}\n/* Set gap to 0 for elements with class buttons__74017 */\n.buttons__74017 {\n    gap: 0 !important;\n}\n/*move roleicon left*/\n[class*=\"roleIcon\"] {\n    float: left;\n    margin-left: 0rem;\n    margin-right: .25rem;\n}\n[class*=\"channelAppLauncher_df39bd\"] {\n  padding:0;\n  height:0;\n  width:0;\n  visibility: hidden;\n  opacity: 0;\n}\n\n/*Dashless channel names*/\n@font-face {\n    font-family: \"Twemoji Mozilla\";\n    src: url(\"https://vendicated.github.io/random-files/Twemoji.Mozilla.ttf\") format(\"truetype\");\n    unicode-range: U+1F1E6-1F1FF;\n}\n@font-face {\n    font-family: \"dashless\";\n    size-adjust: 100%;\n    src: url(\"https://vendicated.github.io/random-files/Dashless.woff2\") format(\"woff2\");\n    unicode-range: U+002D;\n}\n[data-list-item-id^=channels___]:not([role=button]),\n[class^=titleWrapper]>h1,\n[id^=\":r\"]>h1,\n[class^=resultChannel],\n[class^=channelNameContainer_],\n[class^=searchAnswer_],\n.channelWithIcon,\n[class^=emptyChannelIcon_]+h3,\n[class^=emptyChannelIcon_]~[class*=description_],\n[class^=browser_] [class*=channelText_],\n[class^=returnButton_] [class^=text-],\n[class^=placeholder][class*=slateTextArea],\n[class^=auditLog_] [class^=overflowEllipsis_] strong,\n.vc-permviewer-perms-title,\n[class^=headerChannelContainer_]>div {\n    font-family: \"Twemoji Mozilla\", \"dashless\", var(--font-primary)\n}"
 }
