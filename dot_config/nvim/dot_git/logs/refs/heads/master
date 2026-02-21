@@ -1,0 +1,7 @@
+0000000000000000000000000000000000000000 8773b9d4ee74e8a33c73f940015ea29da7a9cfe3 notquite28 <arnav.panigrahi@gmail.com> 1771400730 -0800	clone: from github.com:notquite28/nvim.git
+8773b9d4ee74e8a33c73f940015ea29da7a9cfe3 05f1ec399b1adeaa29647b36ff1b97ef0fe67457 notquite28 <arnav.panigrahi@gmail.com> 1771404758 -0800	commit: Update plugins: add mini-surround, remove supermaven, update lock files
+05f1ec399b1adeaa29647b36ff1b97ef0fe67457 44cd4679a4671c85100b3e3ef9ebea4c615860cc notquite28 <arnav.panigrahi@gmail.com> 1771407159 -0800	commit: Add automatic LSP and tool installation via Mason
+44cd4679a4671c85100b3e3ef9ebea4c615860cc 4edeebfafc3ea3f27f2e2d2bcb35e3fb14886ddc notquite28 <arnav.panigrahi@gmail.com> 1771546593 -0800	commit: fix some mason configs, add dashboard ascii
+4edeebfafc3ea3f27f2e2d2bcb35e3fb14886ddc 10c43aa8c69548cf21b8eaba299fa176eb7d0288 notquite28 <arnav.panigrahi@gmail.com> 1771552761 -0800	pull: Fast-forward
+10c43aa8c69548cf21b8eaba299fa176eb7d0288 c27f885fd033e26dcb561054b63ab9c52c1c0fb2 notquite28 <arnav.panigrahi@gmail.com> 1771554670 -0800	commit: enable hidden files in snacks picker, remap opencode keybindings to leader prefix
+c27f885fd033e26dcb561054b63ab9c52c1c0fb2 598a2c940a7d7919eff7253dcac4c63b8dc64ec5 notquite28 <arnav.panigrahi@gmail.com> 1771556419 -0800	commit: Fix LSP conflicts and optimize tooling configuration
