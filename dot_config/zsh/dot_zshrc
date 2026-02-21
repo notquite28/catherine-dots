@@ -38,6 +38,12 @@ function in {
     fi
 }
 
+# Tmux aliases
+alias tm='tmux attach -t default || tmux new -s default'
+alias tl='tmux list-sessions'
+alias ta='tmux attach -t'
+alias tn='tmux new -s'
+
 # Helpful aliases
 alias c='clear'
 alias l='eza -lh --icons=auto'
@@ -76,9 +82,6 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-# Task Master aliases added on 8/15/2025
-alias tm='task-master'
-alias taskmaster='task-master'
 
 
 # zoxide

@@ -19,5 +19,3 @@ map("n", "<C-b>", "<C-b>zz")
 -- Increment/decrement numbers
 map("n", "+", "<C-a>", { desc = "Increment number" })
 map("n", "-", "<C-x>", { desc = "Decrement number" })
-
--- Testing increment/decrement 8.
