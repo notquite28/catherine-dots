@@ -114,6 +114,7 @@ clang
 cliphist
 clucene
 cmake
+cmatrix
 compiler-rt
 composefs
 containerd
