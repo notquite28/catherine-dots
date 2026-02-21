@@ -1,5 +1,0 @@
-Fix LSP conflicts and optimize tooling configuration
-
-Resolved duplicate Ruff linting causing multiple error reports, upgraded TypeScript LSP to modern vtsls, optimized Python formatter execution order, and added missing Rust formatter support.
-
-Co-authored-by: Cursor <cursoragent@cursor.com>
