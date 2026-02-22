@@ -1,0 +1,26 @@
+color0 #17120f
+color1 #ffb4ab
+color2 #ffb780
+color3 #e4bfa7
+color4 #c6cb95
+color5 #ffb780
+color6 #e4bfa7
+color7 #ece0da
+color8 #9f8d82
+color9 #ffb4ab
+color10 #ffb780
+color11 #e4bfa7
+color12 #c6cb95
+color13 #ffb780
+color14 #e4bfa7
+color15 #ece0da
+
+cursor                #ece0da
+cursor_text_color     #17120f
+background            #17120f
+foreground            #ece0da
+selection_foreground  #d6c3b7
+selection_background  #51443b
+active_border_color   #ffb780
+inactive_border_color #51443b
+url_color             #ffb780
