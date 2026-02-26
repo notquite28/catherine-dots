@@ -18,3 +18,5 @@ mouse-hide-while-typing = true
 
 window-theme = auto
 theme = catppuccin-mocha
+
+custom-shader = shaders/cursor_tail.glsl
