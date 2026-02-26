@@ -17,6 +17,6 @@ copy-on-select = clipboard
 mouse-hide-while-typing = true
 
 window-theme = auto
-theme = catppuccin-mocha
+theme = Catppuccin Mocha
 
 custom-shader = /Users/quiet/.config/ghostty/shaders/cursor_tail.glsl
