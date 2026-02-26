@@ -18,3 +18,5 @@ mouse-hide-while-typing = true
 
 window-theme = auto
 theme = noctalia
+
+custom-shader = shaders/cursor-tail.glsl
