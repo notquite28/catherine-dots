@@ -17,6 +17,4 @@ copy-on-select = clipboard
 mouse-hide-while-typing = true
 
 window-theme = auto
-theme = noctalia
-
-custom-shader = shaders/cursor-tail.glsl
+theme = catppuccin-mocha
