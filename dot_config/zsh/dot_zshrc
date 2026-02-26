@@ -32,16 +32,9 @@ setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_SPACE
 setopt HIST_REDUCE_BLANKS
 
-# Smart package installer
+# Smart package installer (Homebrew for Mac)
 function in {
-    local -a arch=() aur=()
-    
-    for pkg in "$@"; do
-        pacman -Si "$pkg" &>/dev/null && arch+=("$pkg") || aur+=("$pkg")
-    done
-    
-    (( ${#arch[@]} )) && sudo pacman -S "${arch[@]}"
-    (( ${#aur[@]} )) && yay -S "${aur[@]}"
+    brew install "$@"
 }
 
 # Tmux aliases
@@ -63,18 +56,13 @@ alias ll='eza -lha --icons=auto --sort=name --group-directories-first'
 alias ld='eza -lhD --icons=auto'
 alias lt='eza --icons=auto --tree'
 
-# Package management
-alias un='yay -Rns'
-alias up='yay -Syu'
-alias pl='yay -Qs'
-alias pa='yay -Ss'
-alias pc='yay -Sc'
-
-# Remove orphaned packages
-function po {
-    local orphans=$(yay -Qtdq)
-    [[ -n "$orphans" ]] && echo "$orphans" | yay -Rns - || echo "No orphaned packages"
-}
+# Package management (Homebrew)
+alias un='brew uninstall'
+alias up='brew upgrade'
+alias pl='brew list'
+alias pa='brew search'
+alias pc='brew cleanup'
+alias bi='brew install'
 
 # Directory navigation
 alias ..='cd ..'

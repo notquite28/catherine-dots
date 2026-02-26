@@ -2,27 +2,23 @@
     "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
     "logo": {
       "source": "$(find \"${XDG_CONFIG_HOME:-$HOME/.config}/fastfetch/pngs/\" -name \"*.png\" | shuf -n 1)",
+      "type": "kitty",
       "height": 18
     },
     "display": {
       "separator": " : "
     },
     "modules": [
-      // Custom Heading (Computer)
       {
         "type": "custom",
         "format": "  󰌢  コンピューター",
         "keyColor": "white"
       },
-  
-      // Horizontal Separator
       {
         "type": "custom",
         "format": "┌──────────────────────────────────────────┐",
         "keyColor": "white"
       },
-  
-      // System Information Modules
       {
         "type": "os",
         "key": "   OS",
@@ -53,32 +49,22 @@
         "key": "   Terminal",
         "keyColor": "yellow"
       },
-  
-      // Horizontal Separator
       {
         "type": "custom",
         "format": "└──────────────────────────────────────────┘",
         "keyColor": "white"
       },
-  
-      // Break for spacing
       "break",
-  
-      // User Information Section
       {
         "type": "title",
         "key": "  ",
         "keyColor": "cyan"
       },
-  
-      // Horizontal Separator (for CPU/GPU details)
       {
         "type": "custom",
         "format": "┌──────────────────────────────────────────┐",
         "keyColor": "white"
       },
-  
-      // CPU, GPU, and Memory Information
       {
         "type": "cpu",
         "key": "  󰻠 CPU",
@@ -99,37 +85,27 @@
         "key": "  󰍛 Memory",
         "keyColor": "magenta"
       },
-  
-      // OS Age Command
       {
         "type": "command",
         "key": "  󱦟 OS Age ",
         "keyColor": "cyan",
-        "text": "birth_install=$(stat -c %W /); current=$(date +%s); time_progression=$((current - birth_install)); days_difference=$((time_progression / 86400)); echo $days_difference days"
+        "text": "birth_install=$(stat -f %B /); current=$(date +%s); time_progression=$((current - birth_install)); days_difference=$((time_progression / 86400)); echo $days_difference days"
       },
-  
-      // Uptime Information
       {
         "type": "uptime",
         "key": "  󱫐 Uptime ",
         "keyColor": "red"
       },
-  
-      // Horizontal Separator (end of section)
       {
         "type": "custom",
         "format": "└──────────────────────────────────────────┘",
         "keyColor": "white"
       },
-  
-      // Colors Section
       {
         "type": "colors",
         "paddingLeft": 2,
         "symbol": "circle"
       },
-  
-      // Break for final spacing
       "break"
     ]
   }

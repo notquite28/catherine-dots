@@ -1,11 +1,11 @@
 font-family = MesloLGLDZ Nerd Font
-font-size = 12
+font-size = 16
 
 window-padding-x = 12
 window-padding-y = 12
-background-opacity = 1.0
+background-opacity = 0.8
 background-blur-radius = 32
-window-decoration = false
+window-decoration = true
 
 cursor-style = block
 cursor-style-blink = true
