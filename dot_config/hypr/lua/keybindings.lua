@@ -6,42 +6,45 @@ local mainMod = ctx.mainMod
 local editor = ctx.editor
 local file = ctx.file
 local browser = ctx.browser
+local ipc = "noctalia msg "
 ---------------------
 ---- KEYBINDINGS ----
 ---------------------
 
 -- 1. Overview
 hl.bind(mainMod .. " + SHIFT + slash", hl.dsp.exec_cmd('hyprctl notify -1 3000 "rgb(ff6b6b)" "Hotkey Overlay"'))
-hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd("qs -c noctalia-shell ipc call plugin:keybind-cheatsheet toggle"))
+hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd(ipc .. "panel-toggle kenn/keybind-cheatsheet:cheatsheet"))
 
 -- 2. Applications
 hl.bind(mainMod .. " + return", hl.dsp.exec_cmd("ghostty +new-window"))
 hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd("vicinae toggle"))
+hl.bind("CTRL + SPACE", hl.dsp.exec_cmd("pkill -USR2 -x handy"))
+hl.bind("CTRL + SHIFT + SPACE", hl.dsp.exec_cmd("/usr/bin/handy --toggle-post-process"))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(file))
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(editor))
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd("hyprpicker -a"))
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("vicinae vicinae://extensions/vicinae/clipboard/history"))
--- SUPER+comma freed (settings available via bar)
-hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("qs -c noctalia-shell ipc call notifications toggleHistory"))
+hl.bind(mainMod .. " + comma", hl.dsp.exec_cmd(ipc .. "settings-toggle"))
+hl.bind(mainMod .. " + N", hl.dsp.exec_cmd(ipc .. "panel-toggle control-center notifications"))
 
 -- 3. Security
-hl.bind(mainMod .. " + ALT + L", hl.dsp.exec_cmd("qs -c noctalia-shell ipc call lockScreen lock"))
+hl.bind(mainMod .. " + ALT + L", hl.dsp.exec_cmd(ipc .. "session lock"))
 hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exit())
 hl.bind("CONTROL + ALT + Delete", hl.dsp.exec_cmd(scrPath .. "/sysmon.sh"))
 
 -- 4. Audio
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("qs -c noctalia-shell ipc call volume increase"),
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(ipc .. "volume-up"),
     { locked = true, repeating = true })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("qs -c noctalia-shell ipc call volume decrease"),
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd(ipc .. "volume-down"),
     { locked = true, repeating = true })
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd("qs -c noctalia-shell ipc call volume muteOutput"), { locked = true })
-hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("qs -c noctalia-shell ipc call volume muteInput"), { locked = true })
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd(ipc .. "volume-mute"), { locked = true })
+hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd(ipc .. "mic-mute"), { locked = true })
 
 -- 5. Brightness
-hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("qs -c noctalia-shell ipc call brightness increase"),
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(ipc .. "brightness-up"),
     { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("qs -c noctalia-shell ipc call brightness decrease"),
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(ipc .. "brightness-down"),
     { locked = true, repeating = true })
 
 -- 6. Window Management
@@ -87,7 +90,7 @@ hl.bind(mainMod .. " + SHIFT + 4", hl.dsp.exec_cmd(scrPath .. "/screenshot.sh sf
 hl.bind(mainMod .. " + SHIFT + 5", hl.dsp.exec_cmd(scrPath .. "/screenshot.sh w"))
 
 -- 13. System
-hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd("qs -c noctalia-shell ipc call sessionMenu toggle"))
+hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd(ipc .. "panel-toggle session"))
 hl.bind(mainMod .. " + SHIFT + O", hl.dsp.exec_cmd("hyprctl dispatch dpms off"))
 
 -- 14. Resize (scrolling: column width — niri-style)
@@ -97,10 +100,10 @@ hl.bind(mainMod .. " + SHIFT + minus", hl.dsp.layout("colresize -conf"), { repea
 hl.bind(mainMod .. " + SHIFT + equal", hl.dsp.layout("colresize +conf"), { repeating = true })
 
 -- 15. Scrolling column management (niri-style)
-hl.bind(mainMod .. " + comma", hl.dsp.layout("move -col"))
+hl.bind(mainMod .. " + SHIFT + comma", hl.dsp.layout("move -col"))
 hl.bind(mainMod .. " + period", hl.dsp.layout("move +col"))
-hl.bind(mainMod .. " + mouse_down", hl.dsp.layout("move -col"))
-hl.bind(mainMod .. " + mouse_up", hl.dsp.layout("move +col"))
+hl.bind(mainMod .. " + mouse_down", hl.dsp.layout("move +col"))
+hl.bind(mainMod .. " + mouse_up", hl.dsp.layout("move -col"))
 -- Keep CTRL+scroll after plain SUPER+scroll so the more-specific bind wins.
 hl.bind(mainMod .. " + ALT + mouse_down", hl.dsp.focus({ workspace = "-1" }))
 hl.bind(mainMod .. " + ALT + mouse_up", hl.dsp.focus({ workspace = "+1" }))

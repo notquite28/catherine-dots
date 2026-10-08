@@ -21,3 +21,32 @@ export JAVA_HOME=/opt/android-studio/jbr
 
 # bun completions
 [ -s "/home/quiet/.bun/_bun" ] && source "/home/quiet/.bun/_bun"
+
+# Claude Code — skip permission prompts
+alias cc="claude --dangerously-skip-permissions"
+
+
+# >>> omp profile alias: ave >>>
+ave() {
+    command '/home/quiet/.bun/bin/bun' '/home/quiet/.bun/install/global/node_modules/@oh-my-pi/pi-coding-agent/dist/cli.js' --profile=avemujica-chatgpt "$@"
+}
+# <<< omp profile alias: ave <<<
+
+
+# >>> omp profile alias: grk >>>
+grk() {
+    command '/home/quiet/.bun/bin/bun' '/home/quiet/.bun/install/global/node_modules/@oh-my-pi/pi-coding-agent/dist/cli.js' --profile=grok-build "$@"
+}
+# <<< omp profile alias: grk <<<
+
+# >>> omp profile alias: qwen >>>
+qwen() {
+    command '/home/quiet/.bun/bin/bun' '/home/quiet/.bun/install/global/node_modules/@oh-my-pi/pi-coding-agent/dist/cli.js' --profile=qwen "$@"
+}
+# <<< omp profile alias: qwen <<<
+
+# >>> grok installer >>>
+export PATH="$HOME/.grok/bin:$PATH"
+fpath=(~/.grok/completions/zsh $fpath)
+autoload -Uz compinit && compinit -C
+# <<< grok installer <<<

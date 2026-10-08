@@ -4,8 +4,8 @@ grapheme-width-method = legacy
 
 window-padding-x = 12
 window-padding-y = 12
-background-opacity = 1.0
-background-blur-radius = 32
+background-opacity = 0.8
+background-blur = 32
 window-decoration = false
 
 cursor-style = block

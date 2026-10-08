@@ -23,3 +23,6 @@ local modules = {
 for _, name in ipairs(modules) do
     dofile(moduleDir .. "/" .. name .. ".lua")(ctx)
 end
+
+-- For Noctalia Color templates
+require("noctalia").apply_theme()

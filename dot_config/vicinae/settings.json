@@ -14,6 +14,9 @@
    "pop_to_root_on_close": true,
    "escape_key_behavior": "close_window",
    "search_files_in_root": true,
+   "global_shortcuts": {
+      "toggle": ""
+   },
    "font": {
       "normal": {
          "family": "auto",

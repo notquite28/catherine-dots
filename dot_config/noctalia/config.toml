@@ -1,0 +1,21 @@
+# Noctalia v5 configuration migrated from the Quickshell setup.
+
+[wallpaper]
+enabled = true
+fill_mode = "crop"
+directory = "/home/quiet/Pictures/wallpapers"
+transition_on_startup = false
+
+[wallpaper.default]
+path = "/home/quiet/Pictures/wallpapers/104694494_p3.jpg"
+
+[theme]
+source = "wallpaper"
+wallpaper_scheme = "m3-content"
+
+[theme.templates.user.rofi]
+input_path = "$XDG_CONFIG_HOME/noctalia/templates/rofi-theme.rasi"
+output_path = "$XDG_CONFIG_HOME/rofi/theme.rasi"
+
+[hooks]
+wallpaper_changed = "/home/quiet/.local/scripts/noctalia-wallpaper-hook.sh"

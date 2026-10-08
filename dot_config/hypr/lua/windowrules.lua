@@ -14,7 +14,7 @@ end
 -- Opacity 0.80 0.80
 local opacity_80_80 = {
     "code-oss", "Code", "code-url-handler", "code-insiders-url-handler",
-    "kitty", "com.mitchellh.ghostty", "thunar", "org.kde.dolphin", "org.kde.ark",
+    "kitty", "thunar", "org.kde.dolphin", "org.kde.ark",
     "nwg-look", "qt5ct", "qt6ct", "kvantummanager",
     "com.github.tchx84.Flatseal", "hu.kramo.Cartridges", "com.obsproject.Studio",
     "gnome-boxes", "vesktop", "discord", "WebCord", "ArmCord",
@@ -56,6 +56,28 @@ hl.window_rule({ name = "telegram-opacity-95", match = { title = "^(Telegram)$" 
 hl.window_rule({ name = "qq-opacity-95", match = { title = "^(QQ)$" }, opacity = "0.95 0.95" })
 hl.window_rule({ name = "netease-opacity-95", match = { title = "^(NetEase Cloud Music Gtk4)$" }, opacity = "0.95 0.95" })
 
+-- Keep new floating windows on the monitor that opens them. This also
+-- overrides invalid saved positions from XWayland applications.
+hl.window_rule({
+    name = "floating-window-center",
+    match = { float = true },
+    center = true,
+})
+
+-- FLiNG trainers send a late X11 configure request with coordinates from
+-- Wine's virtual desktop. Keep the trainer centered on the 1080p monitor.
+hl.window_rule({
+    name = "fling-trainer-placement",
+    match = {
+        initial_title = "^(FLiNG Trainer)$",
+        xwayland = true,
+    },
+    float = true,
+    monitor = "DP-2",
+    center = true,
+    suppress_event = "x11configurerequest",
+})
+
 -- Float rules (class-only)
 local float_apps = {
     "Rofi", "Calculator", "pavucontrol", "blueman-manager",
@@ -67,7 +89,6 @@ local float_apps = {
     "net.davidotek.pupgui2", "yad", "eog", "io.github.alainm23.planify",
     "io.gitlab.theevilskeleton.Upscaler", "com.github.unrud.VideoDownloader",
     "io.gitlab.adhami3310.Impression", "io.missioncenter.MissionCenter",
-    "Emulator",
 }
 for _, app in ipairs(float_apps) do
     hl.window_rule({ name = app .. "-float", match = { class = "^(" .. app .. ")$" }, float = true })
@@ -80,13 +101,20 @@ hl.window_rule({ name = "steam-updater-float", match = { title = "^(Steam - Self
 hl.window_rule({ name = "about-firefox-float", match = { title = "^(About Mozilla Firefox)$" }, float = true })
 hl.window_rule({ name = "pip-float-2", match = { title = "^(Picture-in-Picture)$" }, float = true })
 hl.window_rule({ name = "rog-control-float", match = { title = "^(ROG Control)$" }, float = true })
-hl.window_rule({ name = "android-emulator-title-float", match = { title = "^(Android Emulator|.* - Android Emulator).*$" }, float = true })
+
+-- Android Emulator: float only. No center/move/workspace/size — forced
+-- placement parks Qt multi-window chrome off-screen on multi-monitor.
+hl.window_rule({
+    name = "android-emulator-float",
+    match = { class = "^(Emulator)$" },
+    float = true,
+})
 
 -- Float rules (class + title)
 hl.window_rule({ name = "brave-save-float", match = { class = "^(brave)$", title = "^(Save File)$" }, float = true })
 hl.window_rule({ name = "brave-open-float", match = { class = "^(brave)$", title = "^(Open File)$" }, float = true })
 hl.window_rule({ name = "librewolf-pip-float", match = { class = "^(LibreWolf)$", title = "^(Picture-in-Picture)$" }, float = true })
-hl.window_rule({ name = "dolphin-progress-float", match = { class = "^(org.kde.dolphin)$", title = "^(Progress Dialog|File Transfer|Copying|Moving|Deleting|Trash|Extracting|Compressing) — Dolphin$" }, float = true })
+hl.window_rule({ name = "dolphin-progress-float", match = { class = "^(org.kde.dolphin)$", title = "^(Progress Dialog|File Transfer|Copying|Moving|Deleting|Trash|Creating directory|Extracting|Compressing) — Dolphin$" }, float = true })
 hl.window_rule({ name = "firefox-pip-float", match = { class = "^(firefox)$", title = "^(Picture-in-Picture)$" }, float = true })
 hl.window_rule({ name = "firefox-library-float", match = { class = "^(firefox)$", title = "^(Library)$" }, float = true })
 hl.window_rule({ name = "kitty-top-float", match = { class = "^(kitty)$", title = "^(top)$" }, float = true })
@@ -147,4 +175,12 @@ hl.window_rule({
     move =
     "(monitor_w*0.75) (monitor_h*0.5)"
 })
+-- Noctalia settings window
+hl.window_rule({
+    name = "noctalia-settings",
+    match = { class = "dev.noctalia.Noctalia" },
+    float = true,
+    size = { 1080, 920 },
+})
+
 end

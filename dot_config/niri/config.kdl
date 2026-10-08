@@ -152,9 +152,9 @@ layout {
     place-within-backdrop true
 }
 
-// Set the overview wallpaper on the backdrop.
+// Show Noctalia's native blurred backdrop in the overview.
 layer-rule {
-  match namespace="^noctalia-overview*"
+  match namespace="^noctalia-backdrop"
   place-within-backdrop true
 }
 
@@ -164,10 +164,9 @@ overview {
         off
     }
 }
-spawn-at-startup "qs" "-c" "noctalia-shell"
-// spawn-at-startup "/usr/lib/mate-polkit/polkit-mate-authentication-agent-1"
+spawn-at-startup "noctalia"
+// Noctalia owns notifications; the external polkit agent remains enabled.
 spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
-spawn-at-startup "mako"
 // spawn-at-startup "fcitx5" "-d"
 spawn-at-startup "fcitx5"
 spawn-sh-at-startup "wl-paste --type text --watch cliphist store"
@@ -302,7 +301,7 @@ binds {
     // === Application Launchers ===
     Mod+Return hotkey-overlay-title="Open Terminal" { spawn "kitty"; }
     Mod+Space hotkey-overlay-title="Application Launcher" {
-        spawn-sh "qs -c noctalia-shell ipc call launcher toggle";
+        spawn-sh "noctalia msg panel-toggle launcher";
     }
     Mod+A hotkey-overlay-title="Open Launcher" { spawn-sh "$scrPath/rofilaunch.sh"; }
     Mod+B hotkey-overlay-title="Open Browser" { spawn "brave"; }
@@ -310,19 +309,19 @@ binds {
     Mod+X hotkey-overlay-title="Open Code Editor" { spawn "cursor"; }
     Mod+Shift+P hotkey-overlay-title="Color Picker" { spawn-sh "hyprpicker -a"; }
     Mod+V hotkey-overlay-title="Clipboard Manager" {
-        spawn-sh "qs -c noctalia-shell ipc call launcher clipboard";
+        spawn-sh "noctalia msg panel-toggle clipboard";
     }
     Mod+Comma hotkey-overlay-title="Settings" {
-        spawn-sh "qs -c noctalia-shell ipc call settings toggle";
+        spawn-sh "noctalia msg settings-toggle";
     }
 
-    Mod+N hotkey-overlay-title="Notification Center" { spawn-sh "qs -c noctalia-shell ipc call notifications toggleHistory"; }
+    Mod+N hotkey-overlay-title="Notification Center" { spawn-sh "noctalia msg panel-toggle control-center notifications"; }
     Mod+Backspace hotkey-overlay-title="Logout Menu" { spawn-sh "$scrPath/logout.sh"; }
     Ctrl+Shift+Escape allow-inhibiting=false hotkey-overlay-title="System Monitor" { spawn-sh "$scrPath/sysmon.sh"; }
 
     // === Security ===
     Mod+Alt+L hotkey-overlay-title="Lock Screen" {
-        spawn-sh "qs -c noctalia-shell ipc call lockScreen lock";
+        spawn-sh "noctalia msg session lock";
     }
     Mod+Shift+E { quit; }
     Ctrl+Alt+Delete hotkey-overlay-title="Task Manager" {
@@ -331,24 +330,24 @@ binds {
 
     // === Audio Controls ===
     XF86AudioRaiseVolume allow-when-locked=true {
-        spawn-sh "qs -c noctalia-shell ipc call volume increase";
+        spawn-sh "noctalia msg volume-up";
     }
     XF86AudioLowerVolume allow-when-locked=true {
-        spawn-sh "qs -c noctalia-shell ipc call volume decrease";
+        spawn-sh "noctalia msg volume-down";
     }
     XF86AudioMute allow-when-locked=true {
-        spawn-sh "qs -c noctalia-shell ipc call volume muteOutput";
+        spawn-sh "noctalia msg volume-mute";
     }
     XF86AudioMicMute allow-when-locked=true {
-        spawn-sh "qs -c noctalia-shell ipc call volume muteInput";
+        spawn-sh "noctalia msg mic-mute";
     }
 
     // === Brightness Controls ===
     XF86MonBrightnessUp allow-when-locked=true {
-        spawn-sh "qs -c noctalia-shell ipc call brightness increase";
+        spawn-sh "noctalia msg brightness-up";
     }
     XF86MonBrightnessDown allow-when-locked=true {
-        spawn-sh "qs -c noctalia-shell ipc call brightness decrease";
+        spawn-sh "noctalia msg brightness-down";
     }
 
     // === Window Management ===
@@ -484,7 +483,7 @@ binds {
     Mod+Shift+4 hotkey-overlay-title="Screenshot: Selection" { screenshot; }
     Mod+Shift+5 hotkey-overlay-title="Screenshot: Window" { screenshot-window; }
     // === System Controls ===
-    Mod+Escape allow-inhibiting=false { spawn-sh "qs -c noctalia-shell ipc call sessionMenu toggle"; }
+    Mod+Escape allow-inhibiting=false { spawn-sh "noctalia msg panel-toggle session"; }
     Mod+Shift+O { power-off-monitors; }
 }
 debug {

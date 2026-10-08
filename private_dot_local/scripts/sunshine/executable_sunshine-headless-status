@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# Sunshine headless streaming status script for Hyprland 0.55+
+# Shows current state of SUNSHINE output and saved monitor configuration.
+
+SCRIPT_NAME="$(basename "$0")"
+log() { printf '[%s] %s\n' "$SCRIPT_NAME" "$*"; }
+
+
+die() { log "ERROR: $*" >&2; exit 1; }
+COMMON_FILE="$(dirname "$0")/sunshine-headless-common"
+[[ -r "$COMMON_FILE" ]] || die "Shared helper not found: $COMMON_FILE"
+# shellcheck source=sunshine-headless-common
+source "$COMMON_FILE"
+# Runtime state directory
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}/sunshine-hyprland-headless-${UID}"
+STATE_FILE="${RUNTIME_DIR}/monitors.json"
+
+# Check dependencies
+if ! command -v hyprctl >/dev/null 2>&1; then
+  log "ERROR: hyprctl not found"
+  exit 1
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+  log "ERROR: jq not found"
+  exit 1
+fi
+
+# Locate the active Hyprland session when Sunshine did not inherit its
+# environment, then verify that hyprctl can connect.
+resolve_hyprland_session
+
+echo "=== Sunshine Headless Status ==="
+echo
+
+# Check SUNSHINE output
+if hyprctl monitors all | grep -q '^Monitor SUNSHINE '; then
+  echo "✓ SUNSHINE output: ACTIVE"
+  hyprctl monitors all | grep -A 10 '^Monitor SUNSHINE ' | sed 's/^/  /'
+else
+  echo "✗ SUNSHINE output: NOT ACTIVE"
+fi
+
+echo
+
+# Check saved state
+if [[ -f "$STATE_FILE" ]]; then
+  echo "✓ Saved monitor state: EXISTS"
+  echo "  Location: $STATE_FILE"
+  echo "  Monitors saved:"
+  jq -r '.[] | "    - \(.name): \(.width)x\(.height)@\(.refresh)Hz at \(.x),\(.y) scale=\(.scale)"' "$STATE_FILE"
+else
+  echo "✗ Saved monitor state: NONE"
+fi
+
+echo
+
+# Show all current monitors
+echo "=== Current Monitor Configuration ==="
+hyprctl monitors all -j | jq -r '.[] | "  \(.name): \(.width)x\(.height)@\(.refreshRate)Hz at \(.x),\(.y) scale=\(.scale)\(if .disabled then " [DISABLED]" else "" end)"'
+
+echo
+
+# Show lock status
+LOCK_FILE="${RUNTIME_DIR}/operation.lock"
+if [[ -f "$LOCK_FILE" ]]; then
+  if flock -n "$LOCK_FILE" true 2>/dev/null; then
+    echo "✓ Lock: NOT HELD"
+  else
+    echo "⚠ Lock: HELD (another operation in progress)"
+  fi
+else
+  echo "  Lock: NO LOCK FILE"
+fi

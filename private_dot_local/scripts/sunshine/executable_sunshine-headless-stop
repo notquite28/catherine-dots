@@ -1,0 +1,207 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# Sunshine headless streaming stop script for Hyprland 0.55+
+# Restores physical monitors from saved state and removes SUNSHINE output.
+
+SCRIPT_NAME="$(basename "$0")"
+log() { printf '[%s] %s\n' "$SCRIPT_NAME" "$*"; }
+die() { log "ERROR: $*" >&2; exit 1; }
+
+COMMON_FILE="$(dirname "$0")/sunshine-headless-common"
+[[ -r "$COMMON_FILE" ]] || die "Shared helper not found: $COMMON_FILE"
+# shellcheck source=sunshine-headless-common
+source "$COMMON_FILE"
+
+# Runtime state directory
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}/sunshine-hyprland-headless-${UID}"
+STATE_FILE="${RUNTIME_DIR}/monitors.json"
+LOCK_FILE="${RUNTIME_DIR}/operation.lock"
+
+# Lock file descriptor (set by acquire_lock)
+LOCK_FD=""
+
+# Cleanup on failure
+cleanup_on_failure() {
+  local exit_code=$?
+  # Release lock
+  if [[ -n "$LOCK_FD" ]]; then
+    flock -u "$LOCK_FD" 2>/dev/null || true
+    LOCK_FD=""
+  fi
+  exit "$exit_code"
+}
+trap cleanup_on_failure ERR
+
+# Validate dependencies
+validate_deps() {
+  command -v hyprctl >/dev/null 2>&1 || die "hyprctl not found. Is Hyprland installed?"
+  command -v jq >/dev/null 2>&1 || die "jq not found. Install it: pacman -S jq / apt install jq"
+  command -v flock >/dev/null 2>&1 || die "flock not found. Install util-linux."
+  
+  resolve_hyprland_session
+}
+
+# Acquire exclusive lock
+acquire_lock() {
+  mkdir -p "$RUNTIME_DIR"
+  exec {LOCK_FD}>"$LOCK_FILE"
+  flock -x -w 10 "$LOCK_FD" || die "Another headless display operation is still running"
+}
+
+# Restore physical monitors from saved state
+restore_monitors() {
+  if [[ ! -f "$STATE_FILE" ]]; then
+    log "No saved monitor state found at $STATE_FILE"
+    log "Skipping monitor restoration"
+    return 0
+  fi
+  
+  local count
+  count=$(jq 'length' "$STATE_FILE")
+  
+  if (( count == 0 )); then
+    log "No monitors to restore"
+    return 0
+  fi
+  
+  log "Restoring $count physical monitor(s)..."
+  
+  local failed=0
+  
+  # Restore each monitor with exact configuration
+  # Use process substitution to avoid subshell variable scoping issue
+  while read -r monitor; do
+    local name width height refresh x y scale disabled
+    
+    name=$(echo "$monitor" | jq -r '.name')
+    width=$(echo "$monitor" | jq -r '.width')
+    height=$(echo "$monitor" | jq -r '.height')
+    refresh=$(echo "$monitor" | jq -r '.refresh')
+    x=$(echo "$monitor" | jq -r '.x')
+    y=$(echo "$monitor" | jq -r '.y')
+    scale=$(echo "$monitor" | jq -r '.scale')
+    disabled=$(echo "$monitor" | jq -r '.disabled')
+    
+    log "  Restoring $name: ${width}x${height}@${refresh}Hz at ${x},${y} scale=$scale"
+    
+    # Use refresh rate as-is, no rounding
+    local refresh_str="$refresh"
+    
+    # If monitor was originally disabled, keep it disabled
+    if [[ "$disabled" == "true" ]]; then
+      log "    (was originally disabled, keeping disabled)"
+      hyprctl eval "hl.monitor({
+  output = \"$name\",
+  disabled = true
+})" || { log "ERROR: failed to disable $name"; return 1; }
+    else
+      # Restore enabled monitor with exact settings
+      hyprctl eval "hl.monitor({
+  output = \"$name\",
+  disabled = false,
+  mode = \"${width}x${height}@${refresh_str}\",
+  position = \"${x}x${y}\",
+  scale = $scale
+})" || { log "ERROR: failed to restore $name"; return 1; }
+    fi
+  done < <(jq -c '.[]' "$STATE_FILE")
+
+  # Wait for Hyprland to apply async monitor changes
+  sleep 0.5
+}
+
+# Verify physical monitors are back
+verify_physical_monitors() {
+  if [[ ! -f "$STATE_FILE" ]]; then
+    return 0
+  fi
+  
+  local expected_count
+  expected_count=$(jq 'length' "$STATE_FILE")
+  
+  if (( expected_count == 0 )); then
+    return 0
+  fi
+  
+  # Get current monitor state
+  local current_state
+  current_state=$(hyprctl monitors all -j)
+  
+  # Verify each saved monitor by name and check disabled state
+  local verified=0
+  local failed=0
+  
+  while read -r monitor; do
+    local name was_disabled
+    name=$(echo "$monitor" | jq -r '.name')
+    was_disabled=$(echo "$monitor" | jq -r '.disabled')
+    
+    # Check if monitor exists in current state
+    local current_monitor
+    current_monitor=$(echo "$current_state" | jq -c ".[] | select(.name == \"$name\")")
+    
+    if [[ -z "$current_monitor" ]]; then
+      log "ERROR: monitor $name not found after restoration"
+      failed=1
+      continue
+    fi
+    
+    # Check disabled state matches expected
+    local is_disabled
+    is_disabled=$(echo "$current_monitor" | jq -r '.disabled')
+    
+    if [[ "$was_disabled" == "false" && "$is_disabled" == "true" ]]; then
+      log "ERROR: monitor $name is still disabled after restoration"
+      failed=1
+    elif [[ "$was_disabled" == "true" && "$is_disabled" == "false" ]]; then
+      log "ERROR: monitor $name should be disabled but is enabled"
+      failed=1
+    else
+      verified=$((verified + 1))
+    fi
+  done < <(jq -c '.[]' "$STATE_FILE")
+  
+  if (( failed > 0 )); then
+    die "Monitor verification failed. State file preserved at $STATE_FILE"
+  fi
+  
+  log "Physical monitors verified: $verified monitor(s) restored correctly"
+}
+
+# Remove SUNSHINE headless output
+remove_headless_output() {
+  if ! hyprctl monitors all | grep -q '^Monitor SUNSHINE '; then
+    log "SUNSHINE output not found, skipping removal"
+    return 0
+  fi
+  
+  log "Removing SUNSHINE headless output..."
+  hyprctl output remove SUNSHINE || die "Failed to remove SUNSHINE output"
+  sleep 0.5
+}
+
+# Cleanup runtime state
+cleanup_state() {
+  if [[ -f "$STATE_FILE" ]]; then
+    rm -f "$STATE_FILE"
+    log "Cleaned up state file"
+  fi
+}
+
+# Main flow
+main() {
+  log "Stopping Sunshine headless streaming"
+
+  validate_deps
+  acquire_lock
+
+  restore_monitors
+  verify_physical_monitors
+  remove_headless_output
+  cleanup_state
+
+  log "Cleanup complete. Physical monitors restored, SUNSHINE output removed."
+}
+
+main "$@"

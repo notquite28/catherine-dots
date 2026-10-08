@@ -1,0 +1,204 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# Sunshine headless streaming start script for Hyprland 0.55+
+# Creates a virtual headless output, matches Moonlight client resolution,
+# disables physical monitors, and saves state for restoration.
+
+SCRIPT_NAME="$(basename "$0")"
+log() { printf '[%s] %s\n' "$SCRIPT_NAME" "$*"; }
+die() { log "ERROR: $*" >&2; exit 1; }
+
+COMMON_FILE="$(dirname "$0")/sunshine-headless-common"
+[[ -r "$COMMON_FILE" ]] || die "Shared helper not found: $COMMON_FILE"
+# shellcheck source=sunshine-headless-common
+source "$COMMON_FILE"
+
+# Runtime state directory
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}/sunshine-hyprland-headless-${UID}"
+STATE_FILE="${RUNTIME_DIR}/monitors.json"
+LOCK_FILE="${RUNTIME_DIR}/operation.lock"
+
+# Defaults for Sunshine client parameters
+DEFAULT_WIDTH="${SUNSHINE_CLIENT_WIDTH:-1920}"
+DEFAULT_HEIGHT="${SUNSHINE_CLIENT_HEIGHT:-1080}"
+DEFAULT_FPS="${SUNSHINE_CLIENT_FPS:-60}"
+
+# Lock file descriptor (set by acquire_lock)
+LOCK_FD=""
+
+# Cleanup on failure - restores monitors without re-acquiring lock
+cleanup_on_failure() {
+  local exit_code=$?
+  if [[ -f "$STATE_FILE" ]]; then
+    log "Setup failed, attempting to restore monitors..."
+    # Release lock before calling stop to avoid deadlock
+    if [[ -n "$LOCK_FD" ]]; then
+      flock -u "$LOCK_FD" 2>/dev/null || true
+      LOCK_FD=""
+    fi
+    if [[ -x "$(dirname "$0")/sunshine-headless-stop" ]]; then
+      "$(dirname "$0")/sunshine-headless-stop" || log "Restoration failed"
+    fi
+  else
+    # No state file yet - just release lock
+    if [[ -n "$LOCK_FD" ]]; then
+      flock -u "$LOCK_FD" 2>/dev/null || true
+      LOCK_FD=""
+    fi
+  fi
+  exit "$exit_code"
+}
+trap cleanup_on_failure ERR
+
+# Validate dependencies
+validate_deps() {
+  command -v hyprctl >/dev/null 2>&1 || die "hyprctl not found. Is Hyprland installed?"
+  command -v jq >/dev/null 2>&1 || die "jq not found. Install it: pacman -S jq / apt install jq"
+  command -v flock >/dev/null 2>&1 || die "flock not found. Install util-linux."
+  
+  resolve_hyprland_session
+}
+
+# Validate Sunshine environment variables
+validate_sunshine_vars() {
+  local width="$DEFAULT_WIDTH"
+  local height="$DEFAULT_HEIGHT"
+  local fps="$DEFAULT_FPS"
+  
+  # Validate integers
+  [[ "$width" =~ ^[0-9]+$ ]] || die "SUNSHINE_CLIENT_WIDTH must be a positive integer, got: $width"
+  [[ "$height" =~ ^[0-9]+$ ]] || die "SUNSHINE_CLIENT_HEIGHT must be a positive integer, got: $height"
+  [[ "$fps" =~ ^[0-9]+$ ]] || die "SUNSHINE_CLIENT_FPS must be a positive integer, got: $fps"
+  
+  (( width > 0 )) || die "SUNSHINE_CLIENT_WIDTH must be > 0"
+  (( height > 0 )) || die "SUNSHINE_CLIENT_HEIGHT must be > 0"
+  (( fps > 0 )) || die "SUNSHINE_CLIENT_FPS must be > 0"
+  
+  log "Client resolution: ${width}x${height}@${fps}Hz"
+}
+
+# Acquire exclusive lock
+acquire_lock() {
+  mkdir -p "$RUNTIME_DIR"
+  exec {LOCK_FD}>"$LOCK_FILE"
+  flock -x -w 10 "$LOCK_FD" || die "Another headless display operation is still running"
+}
+
+# Check if session already active (prevents double-start)
+check_existing_session() {
+  if [[ -f "$STATE_FILE" ]]; then
+    die "An existing Sunshine headless session is already active. Run sunshine-headless-stop first."
+  fi
+}
+
+# Save current physical monitor configuration
+save_monitor_state() {
+  log "Saving current monitor configuration..."
+
+  local tmp_file
+  tmp_file=$(mktemp "${STATE_FILE}.tmp.XXXXXX")
+
+  # Write atomically so a failed query cannot leave a corrupt session marker.
+  if ! hyprctl monitors all -j | jq -ce '
+    [.[] | select(.name != "SUNSHINE") | {
+      name: .name,
+      width: .width,
+      height: .height,
+      refresh: .refreshRate,
+      x: .x,
+      y: .y,
+      scale: .scale,
+      disabled: .disabled
+    }]
+  ' > "$tmp_file"; then
+    rm -f "$tmp_file"
+    die "Failed to save monitor configuration"
+  fi
+  if ! mv "$tmp_file" "$STATE_FILE"; then
+    rm -f "$tmp_file"
+    die "Failed to publish monitor configuration"
+  fi
+
+  local count
+  count=$(jq 'length' "$STATE_FILE")
+  log "Saved $count physical monitor(s)"
+}
+
+# Create SUNSHINE headless output if it doesn't exist
+create_headless_output() {
+  if hyprctl monitors all | grep -q '^Monitor SUNSHINE '; then
+    log "SUNSHINE output already exists"
+    return 0
+  fi
+  
+  log "Creating SUNSHINE headless output..."
+  hyprctl output create headless SUNSHINE || die "Failed to create SUNSHINE output"
+  sleep 0.5
+}
+
+# Configure SUNSHINE output with client resolution
+configure_headless_output() {
+  local width="$DEFAULT_WIDTH"
+  local height="$DEFAULT_HEIGHT"
+  local fps="$DEFAULT_FPS"
+  
+  log "Configuring SUNSHINE output: ${width}x${height}@${fps}Hz"
+  
+  hyprctl eval "hl.monitor({
+  output = \"SUNSHINE\",
+  mode = \"${width}x${height}@${fps}\",
+  position = \"auto\",
+  scale = 1
+})" || die "Failed to configure SUNSHINE output"
+  
+  sleep 0.5
+}
+
+# Verify SUNSHINE output is active
+verify_headless_output() {
+  if ! hyprctl monitors all | grep -q '^Monitor SUNSHINE '; then
+    die "SUNSHINE output is not active after configuration"
+  fi
+  log "SUNSHINE output verified active"
+}
+
+# Disable all physical monitors
+disable_physical_monitors() {
+  log "Disabling physical monitors..."
+
+  # Use process substitution to avoid subshell — die must exit the main shell
+  while read -r monitor; do
+    local name
+    name=$(echo "$monitor" | jq -r '.name')
+
+    log "  Disabling $name"
+    hyprctl eval "hl.monitor({
+  output = \"$name\",
+  disabled = true
+})" || die "Failed to disable $name"
+  done < <(jq -c '.[]' "$STATE_FILE")
+
+  sleep 0.5
+}
+
+# Main flow
+main() {
+  log "Starting Sunshine headless streaming setup"
+  
+  validate_deps
+  validate_sunshine_vars
+  acquire_lock
+  check_existing_session
+  
+  save_monitor_state
+  create_headless_output
+  configure_headless_output
+  verify_headless_output
+  disable_physical_monitors
+  
+  log "Setup complete. SUNSHINE output is active, physical monitors disabled."
+  log "State saved to: $STATE_FILE"
+}
+
+main "$@"

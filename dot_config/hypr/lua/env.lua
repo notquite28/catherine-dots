@@ -6,8 +6,8 @@ local scrPath = ctx.scrPath
 ---- ENVIRONMENT VARIABLES ----
 -------------------------------
 
--- Script Path
-hl.env("PATH", os.getenv("PATH") .. ":" .. scrPath)
+-- User-local applications and scripts
+hl.env("PATH", ctx.home .. "/.local/bin:" .. os.getenv("PATH") .. ":" .. scrPath)
 hl.env("TERM", "ghostty")
 hl.env("EDITOR", "nvim")
 
@@ -35,5 +35,4 @@ hl.env("MOZ_ENABLE_WAYLAND", "1")
 -- Qt
 hl.env("QT_QPA_PLATFORM", "wayland;xcb")
 hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
-hl.env("QT_STYLE_OVERRIDE", "kvantum")
 end

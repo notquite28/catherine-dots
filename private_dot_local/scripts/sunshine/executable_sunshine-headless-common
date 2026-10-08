@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# Shared Hyprland session discovery for Sunshine helper scripts.
+
+resolve_hyprland_session() {
+  if hyprctl monitors >/dev/null 2>&1; then
+    return 0
+  fi
+
+  local instances selected match_count instance_count
+  if ! instances=$(hyprctl instances -j 2>/dev/null) || ! jq -e 'type == "array"' >/dev/null 2>&1 <<<"$instances"; then
+    die "Hyprland is not running or its instances cannot be queried"
+  fi
+
+  selected=""
+  if [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
+    match_count=$(jq --arg socket "$WAYLAND_DISPLAY" '[.[] | select(.wl_socket == $socket)] | length' <<<"$instances")
+    if (( match_count == 1 )); then
+      selected=$(jq -r --arg socket "$WAYLAND_DISPLAY" '.[] | select(.wl_socket == $socket) | .instance' <<<"$instances")
+    fi
+  fi
+
+  if [[ -z "$selected" ]]; then
+    instance_count=$(jq 'length' <<<"$instances")
+    if (( instance_count == 0 )); then
+      die "Hyprland is not running"
+    fi
+    if (( instance_count > 1 )); then
+      log "Running Hyprland instances:"
+      jq -r '.[] | "  \(.instance) (\(.wl_socket))"' <<<"$instances" >&2
+      die "Cannot choose a Hyprland session. Set HYPRLAND_INSTANCE_SIGNATURE or WAYLAND_DISPLAY for Sunshine."
+    fi
+    selected=$(jq -r '.[0].instance' <<<"$instances")
+  fi
+
+  export HYPRLAND_INSTANCE_SIGNATURE="$selected"
+  if ! hyprctl monitors >/dev/null 2>&1; then
+    die "Cannot connect to Hyprland instance $selected"
+  fi
+
+  log "Using Hyprland instance: $selected"
+}
