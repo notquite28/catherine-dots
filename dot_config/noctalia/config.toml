@@ -17,5 +17,3 @@ wallpaper_scheme = "m3-content"
 input_path = "$XDG_CONFIG_HOME/noctalia/templates/rofi-theme.rasi"
 output_path = "$XDG_CONFIG_HOME/rofi/theme.rasi"
 
-[hooks]
-wallpaper_changed = "/home/quiet/.local/scripts/noctalia-wallpaper-hook.sh"

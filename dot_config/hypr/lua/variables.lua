@@ -7,7 +7,7 @@ return {
     scrPath = home .. "/.local/scripts",
     cachePath = home .. "/.cache/",
     mainMod = "SUPER",
-    term = "kitty",
+    term = "ghostty",
     editor = "cursor",
     file = "dolphin",
     browser = "zen-browser",

@@ -169,11 +169,9 @@ spawn-at-startup "noctalia"
 spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
 // spawn-at-startup "fcitx5" "-d"
 spawn-at-startup "fcitx5"
-spawn-sh-at-startup "wl-paste --type text --watch cliphist store"
-spawn-sh-at-startup "wl-paste --type image --watch cliphist store"
+// Vicinae owns clipboard history in both compositor sessions.
+spawn-at-startup "vicinae" "server"
 
-// spawn-sh-at-startup "$scrPath/wallpaper.sh"
-// spawn-sh-at-startup "$scrPath/niri-backdrop.sh"
 environment {
   XDG_CURRENT_DESKTOP "niri"
   XDG_SESSION_TYPE "wayland"
@@ -299,7 +297,7 @@ binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
 
     // === Application Launchers ===
-    Mod+Return hotkey-overlay-title="Open Terminal" { spawn "kitty"; }
+    Mod+Return hotkey-overlay-title="Open Terminal" { spawn "ghostty" "+new-window"; }
     Mod+Space hotkey-overlay-title="Application Launcher" {
         spawn-sh "noctalia msg panel-toggle launcher";
     }
@@ -309,14 +307,14 @@ binds {
     Mod+X hotkey-overlay-title="Open Code Editor" { spawn "cursor"; }
     Mod+Shift+P hotkey-overlay-title="Color Picker" { spawn-sh "hyprpicker -a"; }
     Mod+V hotkey-overlay-title="Clipboard Manager" {
-        spawn-sh "noctalia msg panel-toggle clipboard";
+        spawn "vicinae" "vicinae://extensions/vicinae/clipboard/history";
     }
     Mod+Comma hotkey-overlay-title="Settings" {
         spawn-sh "noctalia msg settings-toggle";
     }
 
     Mod+N hotkey-overlay-title="Notification Center" { spawn-sh "noctalia msg panel-toggle control-center notifications"; }
-    Mod+Backspace hotkey-overlay-title="Logout Menu" { spawn-sh "$scrPath/logout.sh"; }
+    Mod+Backspace hotkey-overlay-title="Logout Menu" { spawn "noctalia" "msg" "panel-toggle" "session"; }
     Ctrl+Shift+Escape allow-inhibiting=false hotkey-overlay-title="System Monitor" { spawn-sh "$scrPath/sysmon.sh"; }
 
     // === Security ===

@@ -1,11 +1,23 @@
-config_version = 14
+config_version = 20
 
 [bar.default]
 center = [ "media", "clock", "workspaces" ]
-end = [ "tray", "notifications", "clipboard", "network", "bluetooth", "volume" ]
+end = [ "tray", "notifications", "network", "bluetooth", "volume" ]
 margin_ends = 0
 position = "bottom"
 start = [ "session", "control-center" ]
+
+# Lock unattended sessions without powering off screens or suspending.
+[idle.behavior.lock]
+action = "lock"
+enabled = true
+timeout = 600.0
+
+[idle.behavior.screen-off]
+enabled = false
+
+[idle.behavior.lock-and-suspend]
+enabled = false
 
 [location]
 auto_locate = true
@@ -37,7 +49,7 @@ widget_order = [
     type = "login_box"
 
         [lockscreen_widgets.widget."lockscreen-login-box@DP-1".settings]
-        background_color = "surface_variant"
+        background_color = "surface_container"
         background_opacity = 0.88
         background_radius = 12.0
         center_password_text = false
@@ -48,6 +60,8 @@ widget_order = [
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_media_controls = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
@@ -64,7 +78,7 @@ widget_order = [
     type = "login_box"
 
         [lockscreen_widgets.widget."lockscreen-login-box@DP-2".settings]
-        background_color = "surface_variant"
+        background_color = "surface_container"
         background_opacity = 0.88
         background_radius = 12.0
         center_password_text = false
@@ -75,6 +89,8 @@ widget_order = [
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_media_controls = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
@@ -91,7 +107,7 @@ widget_order = [
     type = "login_box"
 
         [lockscreen_widgets.widget."lockscreen-login-box@SUNSHINE".settings]
-        background_color = "surface_variant"
+        background_color = "surface_container"
         background_opacity = 0.88
         background_radius = 12.0
         center_password_text = false
@@ -102,6 +118,8 @@ widget_order = [
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_media_controls = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
@@ -121,8 +139,37 @@ widget_order = [
 enabled = [ "kenn/keybind-cheatsheet" ]
 
 [shell]
+clipboard_enabled = false
+clipboard_keep_from_closed_apps = false
 settings_show_advanced = false
 settings_window_translucent = true
+
+[shell.window_switcher]
+mru = true
+style = "carousel"
+
+# Keep session-menu logout on the same graceful path as the keyboard shortcut.
+[[shell.session.actions]]
+action = "lock"
+shortcut = "1"
+
+[[shell.session.actions]]
+action = "logout"
+command = "/home/quiet/.local/scripts/compositor-logout.sh"
+shortcut = "2"
+
+[[shell.session.actions]]
+action = "lock_and_suspend"
+shortcut = "3"
+
+[[shell.session.actions]]
+action = "reboot"
+shortcut = "4"
+
+[[shell.session.actions]]
+action = "shutdown"
+shortcut = "5"
+variant = "destructive"
 
 [theme.templates]
 builtin_ids = [ "btop", "gtk3", "gtk4", "ghostty", "hyprland", "kitty", "qt" ]

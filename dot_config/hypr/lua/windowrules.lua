@@ -64,6 +64,16 @@ hl.window_rule({
     center = true,
 })
 
+-- Screenshot annotation stays separate from the tiling layout.
+hl.window_rule({
+    name = "satty-editor",
+    match = { class = "^(com\\.gabm\\.satty)$" },
+    float = true,
+    center = true,
+    size = { 1100, 800 },
+    opacity = "1.0 override 1.0 override",
+})
+
 -- FLiNG trainers send a late X11 configure request with coordinates from
 -- Wine's virtual desktop. Keep the trainer centered on the 1080p monitor.
 hl.window_rule({

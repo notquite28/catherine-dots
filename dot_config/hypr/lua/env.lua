@@ -12,7 +12,6 @@ hl.env("TERM", "ghostty")
 hl.env("EDITOR", "nvim")
 
 -- Input method (fcitx5)
-hl.env("GTK_IM_MODULE", "fcitx")
 hl.env("QT_IM_MODULE", "fcitx")
 hl.env("XMODIFIERS", "@im=fcitx")
 hl.env("SDL_IM_MODULE", "fcitx")

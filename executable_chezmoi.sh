@@ -21,6 +21,10 @@ files=(
 	"pkg_name_bak" # Changed from absolute path to relative
 	".local/scripts"
 	".local/state/noctalia/settings.toml"
+	".local/state/desktop-workflow-archive"
+	".config/mimeapps.list"
+	".config/kdeglobals"
+	".config/xdg-desktop-portal"
 	".config/fastfetch"
 	".config/kitty"
 	".config/hypr"
@@ -69,13 +73,13 @@ done < <(chezmoi status)
 
 # Add package list to chezmoi
 echo "Adding package list to chezmoi..."
-chezmoi add "$BACKUP_DIR/$PKG_FILE_NAME"
+chezmoi add --secrets=error "$BACKUP_DIR/$PKG_FILE_NAME"
 
 # Loop through the files and add each one to chezmoi
 echo "Adding config files to chezmoi..."
 for file in "${files[@]}"; do
 	if [ -e "$file" ]; then
-		chezmoi add "$file"
+		chezmoi add --secrets=error "$file"
 	else
 		echo "Warning: $file does not exist"
 	fi

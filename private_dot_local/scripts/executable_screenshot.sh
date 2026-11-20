@@ -1,74 +1,75 @@
 #!/usr/bin/env sh
 
-# Function to restore the shader after taking a screenshot
+# Capture targets: p=all screens, s=selection, sf=frozen selection,
+# m=focused monitor, w=focused window. Optional second argument: save directory.
+# Editing never copies the original. Enter/Ctrl+C copies and saves the edited
+# PNG, then closes; Escape cancels. Prefix --copy for clipboard-only capture.
+set -eu
+
+mode=edit
+if [ "${1:-}" = "--copy" ]; then
+	mode=copy
+	shift
+fi
+
+case "${1:-}" in
+	p) set -- screen "${2:-}" ;;
+	s) set -- area "${2:-}" ;;
+	sf) set -- area "${2:-}" --freeze ;;
+	m) set -- output "${2:-}" ;;
+	w) set -- active "${2:-}" ;;
+	*)
+		echo "Usage: $0 [--copy] {p|s|sf|m|w} [save-directory]" >&2
+		exit 1
+		;;
+esac
+
+target=$1
+save_dir=${2:-${XDG_PICTURES_DIR:-$HOME/Pictures}/Screenshots}
+freeze=${3:-}
+if [ "$mode" = edit ]; then
+	mkdir -p "$save_dir"
+fi
+temp_dir=$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/screenshot.XXXXXX")
+temp_screenshot="$temp_dir/capture.png"
+save_file="$save_dir/$(date +'%y%m%d_%Hh%Mm%Ss')_$$_screenshot.png"
+shader=
+
 restore_shader() {
 	if [ -n "$shader" ]; then
 		hyprshade on "$shader"
+		shader=
 	fi
 }
 
-# Function to save the current shader state and turn off shaders
-save_shader() {
-	shader=$(hyprshade current)
-	hyprshade off
-	trap restore_shader EXIT
+cleanup() {
+	restore_shader
+	rm -rf -- "$temp_dir"
 }
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
-save_shader # Save the current shader state
+shader=$(hyprshade current)
+hyprshade off
 
-# Define directories for saving screenshots
-if [ -z "$XDG_PICTURES_DIR" ]; then
-	XDG_PICTURES_DIR="$HOME/Pictures"
+if [ -n "$freeze" ]; then
+	grimblast "$freeze" save "$target" "$temp_screenshot"
+else
+	grimblast save "$target" "$temp_screenshot"
+fi
+restore_shader
+
+if [ "$mode" = copy ]; then
+	wl-copy --type image/png < "$temp_screenshot"
+	notify-send -a Screenshot "Screenshot copied"
+	exit 0
 fi
 
-scrDir=$(dirname "$(realpath "$0")")
-save_dir="${2:-$XDG_PICTURES_DIR/Screenshots}"
-save_file=$(date +'%y%m%d_%Hh%Mm%Ss_screenshot.png') 
-temp_screenshot="/tmp/screenshot.png"
-
-# Create directories if they don't exist
-mkdir -p "$save_dir"
-
-# Function to display usage if an invalid option is provided
-print_error() {
-	cat <<"EOF"
-Usage: ./screenshot.sh <action>
-    Valid actions:
-        p  : Capture all screens
-        s  : Partial capture (select area)
-        sf : Partial capture (frozen screen)
-        m  : Capture focused monitor
-        w  : Capture focused window
-EOF
-}
-
-# Main action logic
-case $1 in
-p) # Capture all monitors
-	grimblast copysave screen "$temp_screenshot" && restore_shader && swappy -f "$temp_screenshot"
-	;;
-s) # Capture a selected area
-	grimblast copysave area "$temp_screenshot" && restore_shader && swappy -f "$temp_screenshot"
-	;;
-sf) # Capture a selected area with a frozen screen
-	grimblast --freeze copysave area "$temp_screenshot" && restore_shader && swappy -f "$temp_screenshot"
-	;;
-m) # Capture the focused monitor
-	grimblast copysave output "$temp_screenshot" && restore_shader && swappy -f "$temp_screenshot"
-	;;
-w) # Capture the focused window
-	grimblast copysave active "$temp_screenshot" && restore_shader && swappy -f "$temp_screenshot"
-	;;
-*) # Invalid option
-	print_error
-	exit 1
-	;;
-esac
-
-# Save the screenshot file to the target directory
-mv "$temp_screenshot" "${save_dir}/${save_file}"
-
-# Send a notification with the location of the saved screenshot
-if [ -f "${save_dir}/${save_file}" ]; then
-	notify-send -a "Screenshot" -i "${save_dir}/${save_file}" "Screenshot saved in ${save_dir}"
-fi
+satty --filename "$temp_screenshot" \
+	--output-filename "$save_file" \
+	--copy-command 'wl-copy --type image/png' \
+	--save-after-copy \
+	--early-exit copy \
+	--actions-on-enter save-to-clipboard \
+	--actions-on-escape exit

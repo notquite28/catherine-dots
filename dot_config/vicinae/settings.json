@@ -79,6 +79,13 @@
       "files:search"
    ],
    "providers": {
+      "clipboard": {
+         "preferences": {
+            "evictionThreshold": "2592000",
+            "ignorePasswords": true,
+            "preserveTagged": true
+         }
+      },
       "applications": {
          "preferences": {
             "paths": [

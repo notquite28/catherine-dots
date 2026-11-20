@@ -30,7 +30,7 @@ hl.bind(mainMod .. " + N", hl.dsp.exec_cmd(ipc .. "panel-toggle control-center n
 
 -- 3. Security
 hl.bind(mainMod .. " + ALT + L", hl.dsp.exec_cmd(ipc .. "session lock"))
-hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exit())
+hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd(scrPath .. "/compositor-logout.sh"))
 hl.bind("CONTROL + ALT + Delete", hl.dsp.exec_cmd(scrPath .. "/sysmon.sh"))
 
 -- 4. Audio
@@ -52,6 +52,8 @@ hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind(mainMod .. " + F", hl.dsp.layout("colresize 1.0"))
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen())
 hl.bind(mainMod .. " + SHIFT + T", hl.dsp.window.float({ action = "toggle" }))
+hl.bind("ALT + TAB", hl.dsp.exec_cmd(ipc .. "window-switcher hold"))
+hl.bind("ALT + SHIFT + TAB", hl.dsp.exec_cmd(ipc .. "window-switcher hold reverse"))
 
 -- 7. Focus (scrolling: left/right = column focus, up/down = within column)
 hl.bind("ALT + H", hl.dsp.layout("focus l"))
@@ -84,14 +86,19 @@ end
 
 -- Relative workspace move (removed: SUPER+CTRL+H/L now used for swapcol)
 
--- 12. Screenshots
+-- 12. Screenshots: edit privately; add CTRL for immediate clipboard-only capture.
 hl.bind(mainMod .. " + SHIFT + 3", hl.dsp.exec_cmd(scrPath .. "/screenshot.sh m"))
 hl.bind(mainMod .. " + SHIFT + 4", hl.dsp.exec_cmd(scrPath .. "/screenshot.sh sf"))
 hl.bind(mainMod .. " + SHIFT + 5", hl.dsp.exec_cmd(scrPath .. "/screenshot.sh w"))
+hl.bind(mainMod .. " + CTRL + SHIFT + 3", hl.dsp.exec_cmd(scrPath .. "/screenshot.sh --copy m"))
+hl.bind(mainMod .. " + CTRL + SHIFT + 4", hl.dsp.exec_cmd(scrPath .. "/screenshot.sh --copy sf"))
+hl.bind(mainMod .. " + CTRL + SHIFT + 5", hl.dsp.exec_cmd(scrPath .. "/screenshot.sh --copy w"))
+-- Toggle focused-monitor recording with system audio; never capture the microphone.
+hl.bind(mainMod .. " + SHIFT + 6", hl.dsp.exec_cmd(scrPath .. "/recording.sh"))
 
 -- 13. System
 hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd(ipc .. "panel-toggle session"))
-hl.bind(mainMod .. " + SHIFT + O", hl.dsp.exec_cmd("hyprctl dispatch dpms off"))
+hl.bind(mainMod .. " + SHIFT + O", hl.dsp.exec_cmd(ipc .. "dpms-off"))
 
 -- 14. Resize (scrolling: column width — niri-style)
 hl.bind(mainMod .. " + minus", hl.dsp.layout("colresize -0.1"), { repeating = true })

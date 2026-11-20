@@ -10,6 +10,17 @@ Update the chezmoi source state from selected files:
 ~/chezmoi.sh
 ```
 
+The snapshot includes active desktop configuration, Noctalia's effective state
+overrides, package inventory, and dated workflow archives. It also forgets
+managed files that were deleted locally, so retired scripts and legacy settings
+are not recreated at their old paths.
+
+New snapshots stop if chezmoi detects a secret. Move credentials to a private,
+unmanaged file rather than disabling the check.
+
+See [Desktop workflow and recovery](docs/desktop-workflow.md) for shortcuts,
+configuration ownership, archived settings, and verification notes.
+
 Review before staging:
 
 ```sh
