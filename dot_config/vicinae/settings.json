@@ -39,7 +39,6 @@
          "width": 770,
          "height": 480
       },
-      "dim_around": true,
       "blur": {
          "enabled": true
       },
@@ -79,13 +78,6 @@
       "files:search"
    ],
    "providers": {
-      "clipboard": {
-         "preferences": {
-            "evictionThreshold": "2592000",
-            "ignorePasswords": true,
-            "preserveTagged": true
-         }
-      },
       "applications": {
          "preferences": {
             "paths": [
@@ -97,6 +89,22 @@
       "calculator": {
          "preferences": {
             "backend": "soulver-core"
+         }
+      },
+      "clipboard": {
+         "preferences": {
+            "evictionThreshold": "2592000",
+            "ignorePasswords": true,
+            "preserveTagged": true
+         }
+      },
+      "snippets": {
+         "preferences": {
+            "enabled": true,
+            "undo": true,
+            "layout": "",
+            "prePasteDelay": "0",
+            "keyDelay": "2"
          }
       }
    }

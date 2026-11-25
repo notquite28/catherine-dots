@@ -12,7 +12,6 @@ local ipc = "noctalia msg "
 ---------------------
 
 -- 1. Overview
-hl.bind(mainMod .. " + SHIFT + slash", hl.dsp.exec_cmd('hyprctl notify -1 3000 "rgb(ff6b6b)" "Hotkey Overlay"'))
 hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd(ipc .. "panel-toggle kenn/keybind-cheatsheet:cheatsheet"))
 
 -- 2. Applications
@@ -24,7 +23,7 @@ hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(file))
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(editor))
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd("hyprpicker -a"))
-hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("vicinae vicinae://extensions/vicinae/clipboard/history"))
+hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("vicinae vicinae://launch/clipboard/history"))
 hl.bind(mainMod .. " + comma", hl.dsp.exec_cmd(ipc .. "settings-toggle"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd(ipc .. "panel-toggle control-center notifications"))
 
